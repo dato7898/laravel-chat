@@ -32,7 +32,9 @@ const app = new Vue({
     el: '#app',
     
     data: {
-        messages: []
+        messages: [],
+        typing: false,
+        typingClock: null
     },
 
     methods: {
@@ -46,7 +48,18 @@ const app = new Vue({
         },
         
         listenChat(user, friend) {
+        	console.log('---', 'listenchat', 'chat.'+user.id+'.'+friend.id);
         	Echo.private('chat.'+user.id+'.'+friend.id)
+        	  .listenForWhisper('typing', (e) => {
+        	  	console.log('---', 'typing');
+        	  	this.typing = true;
+        	  	
+        	  	if (this.typingClock) clearTimeout();
+        	  	
+        	  	this.typingClock = setTimeout(() => {
+        	  		this.typing = false;
+        	  	}, 3000);
+        	  })
 			  .listen('MessageSent', (e) => {
 				this.messages.push({
 				  message: e.message.message,
@@ -67,6 +80,10 @@ const app = new Vue({
         
         scrollToEnd() {
         	$('#chat-body').animate({ scrollTop: 999999}, 1000);
+        },
+        
+        onTyping(user, friend) {
+        	Echo.private('chat.'+friend.id+'.'+user.id).whisper('typing', {});
         }
     }
 });

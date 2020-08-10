@@ -1,6 +1,6 @@
 <template>
     <div class="input-group">
-        <input id="btn-input" type="text" name="message" class="form-control input-sm" placeholder="Type your message here..." v-model="newMessage" @keyup.enter="sendMessage">
+        <input id="btn-input" type="text" name="message" class="form-control input-sm" placeholder="Type your message here..." v-model="newMessage" @keyup.enter="sendMessage" @keydown="onTyping">
 
         <span class="input-group-btn">
             <button class="btn btn-primary btn-sm" id="btn-chat" @click="sendMessage">
@@ -28,6 +28,11 @@
                 }, this.friend);
 
                 this.newMessage = ''
+            },
+            
+            onTyping() {
+            	console.log('---', 'onTyping', 'chat.'+this.friend.id+'.'+this.user.id);
+            	this.$emit('typing', this.user, this.friend);
             }
         }    
     }

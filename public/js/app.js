@@ -1934,6 +1934,10 @@ __webpack_require__.r(__webpack_exports__);
         message: this.newMessage
       }, this.friend);
       this.newMessage = '';
+    },
+    onTyping: function onTyping() {
+      console.log('---', 'onTyping', 'chat.' + this.friend.id + '.' + this.user.id);
+      this.$emit('typing', this.user, this.friend);
     }
   }
 });
@@ -43657,6 +43661,7 @@ var render = function() {
           }
           return _vm.sendMessage($event)
         },
+        keydown: _vm.onTyping,
         input: function($event) {
           if ($event.target.composing) {
             return
@@ -55942,7 +55947,9 @@ Vue.component('chat-form', __webpack_require__(/*! ./components/ChatForm.vue */ 
 var app = new Vue({
   el: '#app',
   data: {
-    messages: []
+    messages: [],
+    typing: false,
+    typingClock: null
   },
   methods: {
     fetchMessages: function fetchMessages(friend) {
@@ -55959,7 +55966,15 @@ var app = new Vue({
     listenChat: function listenChat(user, friend) {
       var _this2 = this;
 
-      Echo["private"]('chat.' + user.id + '.' + friend.id).listen('MessageSent', function (e) {
+      console.log('---', 'listenchat', 'chat.' + user.id + '.' + friend.id);
+      Echo["private"]('chat.' + user.id + '.' + friend.id).listenForWhisper('typing', function (e) {
+        console.log('---', 'typing');
+        _this2.typing = true;
+        if (_this2.typingClock) clearTimeout();
+        _this2.typingClock = setTimeout(function () {
+          _this2.typing = false;
+        }, 3000);
+      }).listen('MessageSent', function (e) {
         _this2.messages.push({
           message: e.message.message,
           user: e.user
@@ -55979,6 +55994,9 @@ var app = new Vue({
       $('#chat-body').animate({
         scrollTop: 999999
       }, 1000);
+    },
+    onTyping: function onTyping(user, friend) {
+      Echo["private"]('chat.' + friend.id + '.' + user.id).whisper('typing', {});
     }
   }
 });
