@@ -1966,6 +1966,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['messages', 'friend', 'user'],
   created: function created() {
@@ -43703,23 +43706,32 @@ var render = function() {
     { staticClass: "chat" },
     _vm._l(_vm.messages, function(message) {
       return _c("li", { staticClass: "left clearfix" }, [
-        _c("div", { staticClass: "chat-body clearfix" }, [
-          _c("div", { staticClass: "header" }, [
-            _c("strong", { staticClass: "primary-font" }, [
+        _c(
+          "div",
+          {
+            staticClass: "chat-body clearfix",
+            class: { "text-right": _vm.user.id === message.user.id }
+          },
+          [
+            _c("div", { staticClass: "header" }, [
+              _c("strong", { staticClass: "primary-font" }, [
+                _vm._v(
+                  "\n                    " +
+                    _vm._s(message.user.name) +
+                    "\n                "
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c("p", [
               _vm._v(
-                "\n                    " +
-                  _vm._s(message.user.name) +
-                  "\n                "
+                "\n                " +
+                  _vm._s(message.message) +
+                  "\n            "
               )
             ])
-          ]),
-          _vm._v(" "),
-          _c("p", [
-            _vm._v(
-              "\n                " + _vm._s(message.message) + "\n            "
-            )
-          ])
-        ])
+          ]
+        )
       ])
     }),
     0
@@ -55940,6 +55952,8 @@ var app = new Vue({
       axios.get('/messages/' + friend.id).then(function (response) {
         _this.messages = response.data;
         console.log('---', _this.messages);
+
+        _this.scrollToEnd();
       });
     },
     listenChat: function listenChat(user, friend) {
@@ -55950,13 +55964,21 @@ var app = new Vue({
           message: e.message.message,
           user: e.user
         });
+
+        _this2.scrollToEnd();
       });
     },
     addMessage: function addMessage(message, friend) {
       this.messages.push(message);
+      this.scrollToEnd();
       axios.post('/messages/' + friend.id, message).then(function (response) {
         console.log(response.data);
       });
+    },
+    scrollToEnd: function scrollToEnd() {
+      $('#chat-body').animate({
+        scrollTop: 999999
+      }, 1000);
     }
   }
 });

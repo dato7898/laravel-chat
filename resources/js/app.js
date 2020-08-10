@@ -41,6 +41,7 @@ const app = new Vue({
             axios.get('/messages/'+friend.id).then(response => {
                 this.messages = response.data;
                 console.log('---', this.messages);
+                this.scrollToEnd();
             });
         },
         
@@ -51,15 +52,21 @@ const app = new Vue({
 				  message: e.message.message,
 				  user: e.user
 				});
+				this.scrollToEnd();
 			  });
         },
 
         addMessage(message, friend) {
             this.messages.push(message);
+            this.scrollToEnd();
 
             axios.post('/messages/'+friend.id, message).then(response => {
               console.log(response.data);
             });
+        },
+        
+        scrollToEnd() {
+        	$('#chat-body').animate({ scrollTop: 999999}, 1000);
         }
     }
 });

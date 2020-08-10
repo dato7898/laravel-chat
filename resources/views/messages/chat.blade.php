@@ -7,7 +7,7 @@
 		        <div class="panel panel-default">
 		            <div class="panel-heading">Chats</div>
 
-		            <div class="panel-body">
+		            <div class="panel-body" id="chat-body">
 		                <chat-messages 
 		                	v-on:getmessages="fetchMessages"
 		                	v-on:listenchat="listenChat"
