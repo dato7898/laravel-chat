@@ -55949,38 +55949,55 @@ var app = new Vue({
   data: {
     messages: [],
     typing: false,
-    typingClock: null
+    typingClock: null,
+    usersonline: []
+  },
+  created: function created() {
+    var _this = this;
+
+    Echo.join('chatty').here(function (users) {
+      console.log('---', 'all users', users);
+      _this.usersonline = users;
+    }).joining(function (user) {
+      _this.usersonline.push(user);
+
+      console.log('---', user.name, 'join');
+    }).leaving(function (user) {
+      _this.usersonline.splice(_this.usersonline.indexOf(user), 1);
+
+      console.log('---', user.name, 'leave');
+    });
   },
   methods: {
     fetchMessages: function fetchMessages(friend) {
-      var _this = this;
+      var _this2 = this;
 
       console.log('---', friend);
       axios.get('/messages/' + friend.id).then(function (response) {
-        _this.messages = response.data;
-        console.log('---', _this.messages);
+        _this2.messages = response.data;
+        console.log('---', _this2.messages);
 
-        _this.scrollToEnd();
+        _this2.scrollToEnd();
       });
     },
     listenChat: function listenChat(user, friend) {
-      var _this2 = this;
+      var _this3 = this;
 
       console.log('---', 'listenchat', 'chat.' + user.id + '.' + friend.id);
       Echo["private"]('chat.' + user.id + '.' + friend.id).listenForWhisper('typing', function (e) {
         console.log('---', 'typing');
-        _this2.typing = true;
-        if (_this2.typingClock) clearTimeout();
-        _this2.typingClock = setTimeout(function () {
-          _this2.typing = false;
+        _this3.typing = true;
+        if (_this3.typingClock) clearTimeout();
+        _this3.typingClock = setTimeout(function () {
+          _this3.typing = false;
         }, 3000);
       }).listen('MessageSent', function (e) {
-        _this2.messages.push({
+        _this3.messages.push({
           message: e.message.message,
           user: e.user
         });
 
-        _this2.scrollToEnd();
+        _this3.scrollToEnd();
       });
     },
     addMessage: function addMessage(message, friend) {

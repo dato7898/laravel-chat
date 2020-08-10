@@ -22,6 +22,12 @@ Broadcast::channel('chat', function ($user) {
   return Auth::check();
 });
 
+Broadcast::channel('chatty', function ($user) {
+  if (Auth::check()) {
+  	return $user;
+  }
+});
+
 Broadcast::channel('chat.{receiverid}', function ($user, $receiverid) {
   if (!Auth::check()) {
       return false;

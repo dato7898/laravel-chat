@@ -6,8 +6,10 @@
 		    <div class="col-md-8 col-md-offset-2">
 		        <div class="panel panel-default">
 		            <div class="panel-heading">
-		            	<span v-if="typing">{{ $friend->name }} is typing...</span>
-		            	<span v-else>Chat with {{ $friend->name }}</span>		          
+		            	<div class="green-circle" v-if="(usersonline.find(useronline => useronline.id === {{ $friend->id }}))"></div>      
+		            	<div class="red-circle" v-else></div> 
+		            	<span class="text-size-20" v-if="typing">{{ $friend->name }} is typing...</span>
+		            	<span class="text-size-20" v-else>Chat with {{ $friend->name }}</span>       
 		            </div>
 
 		            <div class="panel-body" id="chat-body">

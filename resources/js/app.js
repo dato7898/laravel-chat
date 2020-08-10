@@ -34,7 +34,24 @@ const app = new Vue({
     data: {
         messages: [],
         typing: false,
-        typingClock: null
+        typingClock: null,
+        usersonline: []
+    },
+    
+    created() {
+    	Echo.join('chatty')
+    		.here((users) => {
+    			console.log('---', 'all users', users);
+    			this.usersonline = users;
+    		})
+    		.joining((user) => {
+    			this.usersonline.push(user);
+    			console.log('---', user.name, 'join');
+    		})
+    		.leaving((user) => {
+    			this.usersonline.splice(this.usersonline.indexOf(user), 1);
+    			console.log('---', user.name, 'leave');
+    		});
     },
 
     methods: {
