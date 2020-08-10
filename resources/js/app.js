@@ -35,47 +35,41 @@ const app = new Vue({
         messages: [],
         typing: false,
         typingClock: null,
-        usersonline: []
+        usersonline: [],
+        clearTimerId: null
     },
     
     created() {
     	Echo.join('chatty')
     		.here((users) => {
-    			console.log('---', 'all users', users);
     			this.usersonline = users;
     		})
     		.joining((user) => {
     			this.usersonline.push(user);
-    			console.log('---', user.name, 'join');
     		})
     		.leaving((user) => {
     			this.usersonline.splice(this.usersonline.indexOf(user), 1);
-    			console.log('---', user.name, 'leave');
     		});
     },
 
     methods: {
         fetchMessages(friend) {
-        	console.log('---', friend);
             axios.get('/messages/'+friend.id).then(response => {
                 this.messages = response.data;
-                console.log('---', this.messages);
                 this.scrollToEnd();
             });
         },
         
         listenChat(user, friend) {
-        	console.log('---', 'listenchat', 'chat.'+user.id+'.'+friend.id);
         	Echo.private('chat.'+user.id+'.'+friend.id)
         	  .listenForWhisper('typing', (e) => {
-        	  	console.log('---', 'typing');
         	  	this.typing = true;
         	  	
-        	  	if (this.typingClock) clearTimeout();
+        	  	clearTimeout(this.clearTimerId);
         	  	
-        	  	this.typingClock = setTimeout(() => {
+        	  	this.clearTimerId = setTimeout(() => {
         	  		this.typing = false;
-        	  	}, 3000);
+        	  	}, 900);
         	  })
 			  .listen('MessageSent', (e) => {
 				this.messages.push({

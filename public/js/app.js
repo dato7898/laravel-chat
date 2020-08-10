@@ -1924,7 +1924,8 @@ __webpack_require__.r(__webpack_exports__);
   props: ['user', 'friend'],
   data: function data() {
     return {
-      newMessage: ''
+      newMessage: '',
+      canPublish: true
     };
   },
   methods: {
@@ -1936,8 +1937,15 @@ __webpack_require__.r(__webpack_exports__);
       this.newMessage = '';
     },
     onTyping: function onTyping() {
-      console.log('---', 'onTyping', 'chat.' + this.friend.id + '.' + this.user.id);
-      this.$emit('typing', this.user, this.friend);
+      var _this = this;
+
+      if (this.canPublish) {
+        this.$emit('typing', this.user, this.friend);
+        this.canPublish = false;
+        setTimeout(function () {
+          _this.canPublish = true;
+        }, 200);
+      }
     }
   }
 });
@@ -55950,22 +55958,18 @@ var app = new Vue({
     messages: [],
     typing: false,
     typingClock: null,
-    usersonline: []
+    usersonline: [],
+    clearTimerId: null
   },
   created: function created() {
     var _this = this;
 
     Echo.join('chatty').here(function (users) {
-      console.log('---', 'all users', users);
       _this.usersonline = users;
     }).joining(function (user) {
       _this.usersonline.push(user);
-
-      console.log('---', user.name, 'join');
     }).leaving(function (user) {
       _this.usersonline.splice(_this.usersonline.indexOf(user), 1);
-
-      console.log('---', user.name, 'leave');
     });
   },
   methods: {
@@ -55975,7 +55979,6 @@ var app = new Vue({
       console.log('---', friend);
       axios.get('/messages/' + friend.id).then(function (response) {
         _this2.messages = response.data;
-        console.log('---', _this2.messages);
 
         _this2.scrollToEnd();
       });
@@ -55985,12 +55988,11 @@ var app = new Vue({
 
       console.log('---', 'listenchat', 'chat.' + user.id + '.' + friend.id);
       Echo["private"]('chat.' + user.id + '.' + friend.id).listenForWhisper('typing', function (e) {
-        console.log('---', 'typing');
         _this3.typing = true;
-        if (_this3.typingClock) clearTimeout();
-        _this3.typingClock = setTimeout(function () {
+        clearTimeout(_this3.clearTimerId);
+        _this3.clearTimerId = setTimeout(function () {
           _this3.typing = false;
-        }, 3000);
+        }, 900);
       }).listen('MessageSent', function (e) {
         _this3.messages.push({
           message: e.message.message,

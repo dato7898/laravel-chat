@@ -16,7 +16,8 @@
         
         data() {
             return {
-                newMessage: ''
+                newMessage: '',
+                canPublish: true
             }
         },
 
@@ -31,8 +32,13 @@
             },
             
             onTyping() {
-            	console.log('---', 'onTyping', 'chat.'+this.friend.id+'.'+this.user.id);
-            	this.$emit('typing', this.user, this.friend);
+				if (this.canPublish) {
+            		this.$emit('typing', this.user, this.friend);
+            		this.canPublish = false;
+            		setTimeout(() => {
+            			this.canPublish = true;
+            		}, 200);
+            	}
             }
         }    
     }
