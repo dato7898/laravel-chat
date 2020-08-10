@@ -12,8 +12,8 @@
 
 <script>
     export default {
-        props: ['user'],
-
+        props: ['user', 'friend'],
+        
         data() {
             return {
                 newMessage: ''
@@ -25,7 +25,7 @@
                 this.$emit('messagesent', {
                     user: this.user,
                     message: this.newMessage
-                });
+                }, this.friend);
 
                 this.newMessage = ''
             }

@@ -17,6 +17,11 @@
 
 <script>
   export default {
-    props: ['messages']
+    props: ['messages', 'friend', 'user'],
+    
+    created() {
+    	this.$emit('getmessages', this.friend);
+    	this.$emit('listenchat', this.user, this.friend);
+    }
   };
 </script>

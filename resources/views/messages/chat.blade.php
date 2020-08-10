@@ -8,12 +8,19 @@
 		            <div class="panel-heading">Chats</div>
 
 		            <div class="panel-body">
-		                <chat-messages :messages="messages"></chat-messages>
+		                <chat-messages 
+		                	v-on:getmessages="fetchMessages"
+		                	v-on:listenchat="listenChat"
+		                	:messages="messages"
+		                	:friend="{{ $friend }}"
+		                	:user="{{ Auth::user() }}"
+		                ></chat-messages>
 		            </div>
 		            <div class="panel-footer">
 		                <chat-form
 		                    v-on:messagesent="addMessage"
 		                    :user="{{ Auth::user() }}"
+		                    :friend="{{ $friend }}"
 		                ></chat-form>
 		            </div>
 		        </div>
