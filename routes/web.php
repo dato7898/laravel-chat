@@ -108,6 +108,6 @@ Route::get('/status/{statusId}/like', [
 
 Auth::routes();
 
-Route::get('/msg/{username}', 'ChatsController@index');
+Route::get('/chat/{username}', 'ChatsController@index')->name('chat');
 Route::get('messages/{user}', 'ChatsController@fetchMessages');
 Route::post('messages/{user}', 'ChatsController@sendMessage');

@@ -109,9 +109,15 @@
                 </a>
             @elseif (Auth::user()->isFriendsWith($user))
                 <p>You and {{ $user->getNameOrUsername() }} are friends.</p>
+                
+                <p><a 
+                	class="btn btn-primary" 
+                	style="width: 100px;"
+                	href="{{ route('chat', ['username' => $user->name]) }}"
+                >Chat</a></p>
 
                 <form action="{{ route('friend.delete', ['username' => $user->name]) }}" method="post">
-                    <input type="submit" value="Delete friend" class="btn btn-primary">
+                    <input type="submit" value="Delete friend" class="btn btn-primary" style="width: 100px;">
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 </form>
 
