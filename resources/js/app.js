@@ -5,8 +5,14 @@
  */
 
 require('./bootstrap');
+import VueTimeago from 'vue-timeago'
 
 window.Vue = require('vue');
+
+Vue.use(VueTimeago, {
+  locale: 'en-US',
+  locales: { 'en-US': require('vue-timeago/locales/en-US.json') }
+})
 
 /**
  * The following block of code may be used to automatically register your

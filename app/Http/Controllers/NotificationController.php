@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Notification;
+use App\User;
 use App\Events\NotificationRead;
 use App\Events\NotificationReadAll;
 use App\Notifications\HelloNotification;
@@ -10,6 +12,7 @@ use NotificationChannels\WebPush\PushSubscription;
 
 class NotificationController extends Controller
 {
+	
     /**
      * Create a new controller instance.
      *
@@ -59,7 +62,7 @@ class NotificationController extends Controller
      */
     public function store(Request $request)
     {
-        $request->user()->notify(new HelloNotification);
+        Notification::send(User::all(),new HelloNotification);
 
         return response()->json('Notification sent.', 201);
     }

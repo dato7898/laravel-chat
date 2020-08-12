@@ -45281,6 +45281,196 @@ function normalizeComponent (
 
 /***/ }),
 
+/***/ "./node_modules/vue-timeago/dist/vue-timeago.js":
+/*!******************************************************!*\
+  !*** ./node_modules/vue-timeago/dist/vue-timeago.js ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+(function (global, factory) {
+   true ? module.exports = factory() :
+  undefined;
+}(this, (function () { 'use strict';
+
+var MINUTE = 60;
+var HOUR = MINUTE * 60;
+var DAY = HOUR * 24;
+var WEEK = DAY * 7;
+var MONTH = DAY * 30;
+var YEAR = DAY * 365;
+
+function pluralOrSingular(data, locale) {
+  if (data === 'just now') {
+    return locale
+  }
+  var count = Math.round(data);
+  if (Array.isArray(locale)) {
+    return count > 1
+      ? locale[1].replace(/%s/, count)
+      : locale[0].replace(/%s/, count)
+  }
+  return locale.replace(/%s/, count)
+}
+
+function formatTime(time) {
+  var d = new Date(time);
+  return d.toLocaleString()
+}
+
+function install(
+  Vue,
+  ref
+) {
+  if ( ref === void 0 ) ref = {};
+  var name = ref.name; if ( name === void 0 ) name = 'timeago';
+  var locale = ref.locale; if ( locale === void 0 ) locale = 'en-US';
+  var locales = ref.locales; if ( locales === void 0 ) locales = null;
+
+  if (!locales || Object.keys(locales).length === 0) {
+    throw new TypeError('Expected locales to have at least one locale.')
+  }
+
+  var VueTimeago = {
+    props: {
+      since: {
+        required: true
+      },
+      locale: String,
+      maxTime: Number,
+      autoUpdate: Number,
+      format: Function
+    },
+    data: function data() {
+      return {
+        now: new Date().getTime()
+      }
+    },
+    computed: {
+      currentLocale: function currentLocale() {
+        var current = locales[this.locale || locale];
+        if (!current) {
+          return locales[locale]
+        }
+        return current
+      },
+      sinceTime: function sinceTime() {
+        return new Date(this.since).getTime()
+      },
+      timeForTitle: function timeForTitle() {
+        var seconds = this.now / 1000 - this.sinceTime / 1000;
+
+        if (this.maxTime && seconds > this.maxTime) {
+          return null
+        }
+
+        return this.format
+          ? this.format(this.sinceTime)
+          : formatTime(this.sinceTime)
+      },
+      timeago: function timeago() {
+        var seconds = this.now / 1000 - this.sinceTime / 1000;
+
+        if (this.maxTime && seconds > this.maxTime) {
+          clearInterval(this.interval);
+          return this.format
+            ? this.format(this.sinceTime)
+            : formatTime(this.sinceTime)
+        }
+
+        var ret =
+          seconds <= 5
+            ? pluralOrSingular('just now', this.currentLocale[0])
+            : seconds < MINUTE
+              ? pluralOrSingular(seconds, this.currentLocale[1])
+              : seconds < HOUR
+                ? pluralOrSingular(seconds / MINUTE, this.currentLocale[2])
+                : seconds < DAY
+                  ? pluralOrSingular(seconds / HOUR, this.currentLocale[3])
+                  : seconds < WEEK
+                    ? pluralOrSingular(seconds / DAY, this.currentLocale[4])
+                    : seconds < MONTH
+                      ? pluralOrSingular(seconds / WEEK, this.currentLocale[5])
+                      : seconds < YEAR
+                        ? pluralOrSingular(
+                            seconds / MONTH,
+                            this.currentLocale[6]
+                          )
+                        : pluralOrSingular(
+                            seconds / YEAR,
+                            this.currentLocale[7]
+                          );
+
+        return ret
+      }
+    },
+    mounted: function mounted() {
+      if (this.autoUpdate) {
+        this.update();
+      }
+    },
+    render: function render(h) {
+      return h(
+        'time',
+        {
+          attrs: {
+            datetime: new Date(this.since),
+            title: this.timeForTitle
+          }
+        },
+        this.timeago
+      )
+    },
+    watch: {
+      autoUpdate: function autoUpdate(newAutoUpdate) {
+        this.stopUpdate();
+        // only update when it's not falsy value
+        // which means you cans set it to 0 to disable auto-update
+        if (newAutoUpdate) {
+          this.update();
+        }
+      }
+    },
+    methods: {
+      update: function update() {
+        var this$1 = this;
+
+        var period = this.autoUpdate * 1000;
+        this.interval = setInterval(function () {
+          this$1.now = new Date().getTime();
+        }, period);
+      },
+      stopUpdate: function stopUpdate() {
+        clearInterval(this.interval);
+        this.interval = null;
+      }
+    },
+    beforeDestroy: function beforeDestroy() {
+      this.stopUpdate();
+    }
+  };
+
+  Vue.component(name, VueTimeago);
+}
+
+return install;
+
+})));
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-timeago/locales/en-US.json":
+/*!*****************************************************!*\
+  !*** ./node_modules/vue-timeago/locales/en-US.json ***!
+  \*****************************************************/
+/*! exports provided: 0, 1, 2, 3, 4, 5, 6, 7, default */
+/***/ (function(module) {
+
+module.exports = JSON.parse("[\"just now\",[\"%s second ago\",\"%s seconds ago\"],[\"%s minute ago\",\"%s minutes ago\"],[\"%s hour ago\",\"%s hours ago\"],[\"%s day ago\",\"%s days ago\"],[\"%s week ago\",\"%s weeks ago\"],[\"%s month ago\",\"%s months ago\"],[\"%s year ago\",\"%s years ago\"]]");
+
+/***/ }),
+
 /***/ "./node_modules/vue/dist/vue.common.dev.js":
 /*!*************************************************!*\
   !*** ./node_modules/vue/dist/vue.common.dev.js ***!
@@ -57340,8 +57530,10 @@ module.exports = function(module) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _components_NotificationsDemo__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./components/NotificationsDemo */ "./resources/js/components/NotificationsDemo.vue");
-/* harmony import */ var _components_NotificationsDropdown__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/NotificationsDropdown */ "./resources/js/components/NotificationsDropdown.vue");
+/* harmony import */ var vue_timeago__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-timeago */ "./node_modules/vue-timeago/dist/vue-timeago.js");
+/* harmony import */ var vue_timeago__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue_timeago__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _components_NotificationsDemo__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/NotificationsDemo */ "./resources/js/components/NotificationsDemo.vue");
+/* harmony import */ var _components_NotificationsDropdown__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/NotificationsDropdown */ "./resources/js/components/NotificationsDropdown.vue");
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -57349,7 +57541,14 @@ __webpack_require__.r(__webpack_exports__);
  */
 __webpack_require__(/*! ./bootstrap */ "./resources/js/bootstrap.js");
 
+
 window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
+Vue.use(vue_timeago__WEBPACK_IMPORTED_MODULE_0___default.a, {
+  locale: 'en-US',
+  locales: {
+    'en-US': __webpack_require__(/*! vue-timeago/locales/en-US.json */ "./node_modules/vue-timeago/locales/en-US.json")
+  }
+});
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -57373,8 +57572,8 @@ Vue.component('chat-form', __webpack_require__(/*! ./components/ChatForm.vue */ 
 var app = new Vue({
   el: '#app',
   components: {
-    NotificationsDemo: _components_NotificationsDemo__WEBPACK_IMPORTED_MODULE_0__["default"],
-    NotificationsDropdown: _components_NotificationsDropdown__WEBPACK_IMPORTED_MODULE_1__["default"]
+    NotificationsDemo: _components_NotificationsDemo__WEBPACK_IMPORTED_MODULE_1__["default"],
+    NotificationsDropdown: _components_NotificationsDropdown__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   data: {
     messages: [],
