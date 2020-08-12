@@ -26,11 +26,13 @@
       	var f = this.sendNotification
       	clients.matchAll({includeUncontrolled: true}).then(function(clients) {
 	      for (var i = 0 ; i < clients.length ; i++) {
+	        console.log(clients[i].url, '=', data.data.url, clients[i].url===data.data.url)
 	      	if (clients[i].url === data.data.url) {
 	      	  console.log('---', 'hide')
 	      	  return 
 	      	}
 	      }
+	      console.log('---', 'show')
 	      f(data)
 	    })
       }
