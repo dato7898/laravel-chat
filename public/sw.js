@@ -30,11 +30,11 @@
 	        console.log(clients[i].url, '=', data.data.url, clients[i].url===data.data.url)
 	      	if (clients[i].url === data.data.url) {
 	      	  console.log('---', 'hide')
-	      	  return 
+	      	  return
 	      	}
 	      }
 	      console.log('---', 'show')
-	      //f(data)
+	      f(data)
 	    })
       }
     },
