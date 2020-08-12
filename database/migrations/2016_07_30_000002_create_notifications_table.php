@@ -21,7 +21,6 @@ class CreateNotificationsTable extends Migration
             $table->text('data');
             $table->dateTime('read_at')->nullable();
             $table->timestamps();
-
             $table->index(['notifiable_type', 'notifiable_id']);
         });
     }

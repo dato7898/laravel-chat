@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Notification;
 use App\User;
+use Auth;
 use App\Events\NotificationRead;
 use App\Events\NotificationReadAll;
 use App\Notifications\HelloNotification;
@@ -62,7 +63,7 @@ class NotificationController extends Controller
      */
     public function store(Request $request)
     {
-        Notification::send(User::all(),new HelloNotification);
+        Notification::send($request->friend, new HelloNotification($request->message, Auth::user()));
 
         return response()->json('Notification sent.', 201);
     }

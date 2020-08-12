@@ -7,6 +7,8 @@ use App\Message;
 use App\User;
 use Illuminate\Support\Facades\Auth;
 use App\Events\MessageSent;
+use Notification;
+use App\Notifications\HelloNotification;
 
 class ChatsController extends Controller
 {
@@ -64,12 +66,16 @@ class ChatsController extends Controller
 	  $input = $request->all();
 	  $input['receiver_id'] = $user->id;
 	
-	  $user = Auth::user();
+	  $cur_user = Auth::user();
 
-	  $message = $user->messages()->create($input);
+	  $message = $cur_user->messages()->create($input);
 		
-	  broadcast(new MessageSent($user, $message->load('user')))->toOthers();
+	  broadcast(new MessageSent($cur_user, $message->load('user')))->toOthers();
 
-	  return response(['status' => 'Message Sent!', 'message' => $message, 'input' => $input]);
+	  Notification::send(array($user), new HelloNotification($message, $cur_user));	  
+	  
+	  $c = array($user);
+
+	  return response(['status' => 'Message Sent!', 'message' => $message, 'input' => $input, 'user' => $c]);
 	}
 }

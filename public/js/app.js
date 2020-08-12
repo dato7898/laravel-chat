@@ -2230,6 +2230,7 @@ __webpack_require__.r(__webpack_exports__);
       var key = subscription.getKey('p256dh');
       var token = subscription.getKey('auth');
       var contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0];
+      console.log(key);
       var data = {
         endpoint: subscription.endpoint,
         publicKey: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
@@ -57582,6 +57583,9 @@ var app = new Vue({
     usersonline: [],
     clearTimerId: null
   },
+  mounted: function mounted() {
+    this.registerServiceWorker();
+  },
   created: function created() {
     var _this = this;
 
@@ -57592,6 +57596,7 @@ var app = new Vue({
     }).leaving(function (user) {
       _this.usersonline.splice(_this.usersonline.indexOf(user), 1);
     });
+    this.subscribe();
   },
   methods: {
     fetchMessages: function fetchMessages(friend) {
@@ -57635,6 +57640,117 @@ var app = new Vue({
     },
     onTyping: function onTyping(user, friend) {
       Echo["private"]('chat.' + friend.id + '.' + user.id).whisper('typing', {});
+    },
+
+    /**
+    * Register the service worker.
+    */
+    registerServiceWorker: function registerServiceWorker() {
+      var _this4 = this;
+
+      if (!('serviceWorker' in navigator)) {
+        console.log('Service workers aren\'t supported in this browser.');
+        return;
+      }
+
+      navigator.serviceWorker.register('/sw.js').then(function () {
+        return _this4.initialiseServiceWorker();
+      });
+    },
+    initialiseServiceWorker: function initialiseServiceWorker() {
+      var _this5 = this;
+
+      if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
+        console.log('Notifications aren\'t supported.');
+        return;
+      }
+
+      if (Notification.permission === 'denied') {
+        console.log('The user has blocked notifications.');
+        return;
+      }
+
+      if (!('PushManager' in window)) {
+        console.log('Push messaging isn\'t supported.');
+        return;
+      }
+
+      navigator.serviceWorker.ready.then(function (registration) {
+        registration.pushManager.getSubscription().then(function (subscription) {
+          if (!subscription) {
+            return;
+          }
+
+          _this5.updateSubscription(subscription);
+        })["catch"](function (e) {
+          console.log('Error during getSubscription()', e);
+        });
+      });
+    },
+
+    /**
+     * Subscribe for push notifications.
+     */
+    subscribe: function subscribe() {
+      var _this6 = this;
+
+      navigator.serviceWorker.ready.then(function (registration) {
+        var options = {
+          userVisibleOnly: true
+        };
+        var vapidPublicKey = window.Laravel.vapidPublicKey;
+
+        if (vapidPublicKey) {
+          options.applicationServerKey = _this6.urlBase64ToUint8Array(vapidPublicKey);
+        }
+
+        registration.pushManager.subscribe(options).then(function (subscription) {
+          _this6.updateSubscription(subscription);
+        })["catch"](function (e) {
+          if (Notification.permission === 'denied') {
+            console.log('Permission for Notifications was denied');
+          } else {
+            console.log('Unable to subscribe to push.', e);
+          }
+        });
+      });
+    },
+
+    /** Send a request to the server to update user's subscription.
+     *
+     * @param {PushSubscription} subscription
+     */
+    updateSubscription: function updateSubscription(subscription) {
+      var key = subscription.getKey('p256dh');
+      var token = subscription.getKey('auth');
+      var contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0];
+      console.log(key);
+      var data = {
+        endpoint: subscription.endpoint,
+        publicKey: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
+        authToken: token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null,
+        contentEncoding: contentEncoding
+      };
+      axios.post('/subscriptions', data).then(function () {});
+    },
+
+    /**
+     * https://github.com/Minishlink/physbook/blob/02a0d5d7ca0d5d2cc6d308a3a9b81244c63b3f14/app/Resources/public/js/app.js#L177
+     *
+     * @param  {String} base64String
+     * @return {Uint8Array}
+     */
+    urlBase64ToUint8Array: function urlBase64ToUint8Array(base64String) {
+      var padding = '='.repeat((4 - base64String.length % 4) % 4);
+      var base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+      var rawData = window.atob(base64);
+      var outputArray = new Uint8Array(rawData.length);
+
+      for (var i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+
+      return outputArray;
     }
   }
 });
