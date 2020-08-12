@@ -34,7 +34,7 @@
 	      	}
 	      }
 	      console.log('---', 'show')
-	      f(data)
+	      //f(data)
 	    })
       }
     },
