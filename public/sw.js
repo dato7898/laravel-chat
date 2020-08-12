@@ -25,7 +25,7 @@
       	var data = event.data.json()
       	var f = this.sendNotification
       	clients.matchAll({includeUncontrolled: true}).then(function(clients) {
-      	  console.log('---', 'users=', cleints)
+      	  console.log('---', 'users=', clients)
 	      for (var i = 0 ; i < clients.length ; i++) {
 	        console.log(clients[i].url, '=', data.data.url, clients[i].url===data.data.url)
 	      	if (clients[i].url === data.data.url) {
