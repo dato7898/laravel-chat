@@ -163,8 +163,6 @@ export default {
       const key = subscription.getKey('p256dh')
       const token = subscription.getKey('auth')
       const contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0]
-      
-      console.log(key)
 
       const data = {
         endpoint: subscription.endpoint,
