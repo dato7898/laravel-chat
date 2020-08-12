@@ -21,6 +21,8 @@ window.Vue = require('vue');
 
 Vue.component('chat-messages', require('./components/ChatMessages.vue').default);
 Vue.component('chat-form', require('./components/ChatForm.vue').default);
+import NotificationsDemo from './components/NotificationsDemo'
+import NotificationsDropdown from './components/NotificationsDropdown'
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -30,6 +32,11 @@ Vue.component('chat-form', require('./components/ChatForm.vue').default);
 
 const app = new Vue({
     el: '#app',
+    
+    components: {
+      NotificationsDemo,
+      NotificationsDropdown
+    },
     
     data: {
         messages: [],

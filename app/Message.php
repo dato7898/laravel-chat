@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Events\MessageSendEvent;
 
 class Message extends Model
 {
@@ -22,4 +23,5 @@ class Message extends Model
 	{
 	  return $this->belongsTo(User::class);
 	}
+	
 }

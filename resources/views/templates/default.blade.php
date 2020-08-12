@@ -6,8 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatty</title>
     
+    <!-- GCM Manifest (optional if VAPID is used) -->
+    @if (config('webpush.gcm.sender_id'))
+        <link rel="manifest" href="/manifest.json">
+    @endif
+    
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
+    
+    <script>
+        window.Laravel = {!! json_encode([
+            'user' => Auth::user(),
+            'csrfToken' => csrf_token(),
+            'vapidPublicKey' => config('webpush.vapid.public_key'),
+            'pusher' => [
+                'key' => config('broadcasting.connections.pusher.key'),
+                'cluster' => config('broadcasting.connections.pusher.options.cluster'),
+            ],
+        ]) !!};
+    </script>
     
     <!-- Styles -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">

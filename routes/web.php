@@ -111,3 +111,24 @@ Auth::routes();
 Route::get('/chat/{username}', 'ChatsController@index')->name('chat');
 Route::get('messages/{user}', 'ChatsController@fetchMessages');
 Route::post('messages/{user}', 'ChatsController@sendMessage');
+
+Route::get('/notification', 'NotificationController@notification');
+
+// Notifications
+Route::post('notifications', 'NotificationController@store');
+Route::get('notifications', 'NotificationController@index');
+Route::patch('notifications/{id}/read', 'NotificationController@markAsRead');
+Route::post('notifications/mark-all-read', 'NotificationController@markAllRead');
+Route::post('notifications/{id}/dismiss', 'NotificationController@dismiss');
+
+// Push Subscriptions
+Route::post('subscriptions', 'PushSubscriptionController@update');
+Route::post('subscriptions/delete', 'PushSubscriptionController@destroy');
+
+// Manifest file (optional if VAPID is used)
+Route::get('manifest.json', function () {
+    return [
+        'name' => config('app.name'),
+        'gcm_sender_id' => config('webpush.gcm.sender_id')
+    ];
+});
