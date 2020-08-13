@@ -53,7 +53,8 @@ Route::get('/profile/edit', [
 
 Route::get('/profile/{username}', [
     'uses' => '\App\Http\Controllers\ProfileController@getProfile',
-    'as' => 'profile.index'
+    'as' => 'profile.index',
+    'middleware' => ['auth']
  ]);
 
  /**
@@ -111,8 +112,6 @@ Auth::routes();
 Route::get('/chat/{username}', 'ChatsController@index')->name('chat');
 Route::get('messages/{user}', 'ChatsController@fetchMessages');
 Route::post('messages/{user}', 'ChatsController@sendMessage');
-
-Route::get('/notification', 'NotificationController@notification');
 
 // Notifications
 Route::post('notifications/{user}', 'NotificationController@store');

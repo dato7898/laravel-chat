@@ -23,11 +23,6 @@ class NotificationController extends Controller
     {
         $this->middleware('auth')->except('last', 'dismiss');
     }
-    
-    public function notification()
-    {
-        return view('notification');
-    }
 
     /**
      * Get user's notifications.

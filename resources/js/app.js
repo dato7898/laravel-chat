@@ -27,8 +27,6 @@ Vue.use(VueTimeago, {
 
 Vue.component('chat-messages', require('./components/ChatMessages.vue').default);
 Vue.component('chat-form', require('./components/ChatForm.vue').default);
-import NotificationsDemo from './components/NotificationsDemo'
-import NotificationsDropdown from './components/NotificationsDropdown'
 import ToggleNotifications from './components/ToggleNotifications'
 import SendNotification from './components/SendNotification'
 
@@ -42,8 +40,6 @@ const app = new Vue({
     el: '#app',
     
     components: {
-      NotificationsDemo,
-      NotificationsDropdown,
       ToggleNotifications,
       SendNotification
     },
