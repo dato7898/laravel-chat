@@ -22,20 +22,9 @@
 
       // https://developer.mozilla.org/en-US/docs/Web/API/PushMessageData
       if (event.data) {
-      	var data = event.data.json()
-      	var f = this.sendNotification
-      	clients.matchAll({includeUncontrolled: true}).then(function(clients) {
-      	  console.log('---', 'users=', clients)
-	      for (var i = 0 ; i < clients.length ; i++) {
-	        console.log(clients[i].url, '=', data.data.url, clients[i].url===data.data.url)
-	      	if (clients[i].url === data.data.url) {
-	      	  console.log('---', 'hide')
-	      	  return
-	      	}
-	      }
-	      console.log('---', 'show')
-	      f(data)
-	    })
+      	event.waitUntil(
+          this.sendNotification(event.data.json())
+        )
       }
     },
 

@@ -29,6 +29,8 @@ Vue.component('chat-messages', require('./components/ChatMessages.vue').default)
 Vue.component('chat-form', require('./components/ChatForm.vue').default);
 import NotificationsDemo from './components/NotificationsDemo'
 import NotificationsDropdown from './components/NotificationsDropdown'
+import ToggleNotifications from './components/ToggleNotifications'
+import SendNotification from './components/SendNotification'
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -41,7 +43,9 @@ const app = new Vue({
     
     components: {
       NotificationsDemo,
-      NotificationsDropdown
+      NotificationsDropdown,
+      ToggleNotifications,
+      SendNotification
     },
     
     data: {
@@ -49,11 +53,9 @@ const app = new Vue({
         typing: false,
         typingClock: null,
         usersonline: [],
-        clearTimerId: null
-    },
-    
-    mounted () {
-      this.registerServiceWorker()
+        clearTimerId: null,
+        page: 1,
+        last_page: 0
     },
     
     created() {
@@ -67,15 +69,20 @@ const app = new Vue({
     		.leaving((user) => {
     			this.usersonline.splice(this.usersonline.indexOf(user), 1);
     		});
-    	this.subscribe();
     },
 
     methods: {
         fetchMessages(friend) {
-            axios.get('/messages/'+friend.id).then(response => {
-                this.messages = response.data;
-                this.scrollToEnd();
-            });
+        	if (this.last_page === 0 || this.last_page >= this.page) {
+		        axios.get('/messages/'+friend.id+'?page='+this.page).then(response => {
+		        	this.messages = response.data.data.reverse().concat(this.messages);
+		        	if (this.page === 1) {
+		            	this.last_page = response.data.last_page;
+		            	this.scrollToEnd();
+		            }
+		            this.page++;
+		        });
+            }
         },
         
         listenChat(user, friend) {
@@ -108,128 +115,12 @@ const app = new Vue({
         },
         
         scrollToEnd() {
-        	$('#chat-body').animate({ scrollTop: 999999}, 1000);
+        	$('#chat-body').animate({ scrollTop: 999999}, 100);
         },
         
         onTyping(user, friend) {
         	Echo.private('chat.'+friend.id+'.'+user.id).whisper('typing', {});
-        },
-        
-        /**
-		 * Register the service worker.
-		 */
-		registerServiceWorker () {
-		  if (!('serviceWorker' in navigator)) {
-		    console.log('Service workers aren\'t supported in this browser.')
-		    return
-		  }
-
-		  navigator.serviceWorker.register('/sw.js')
-		    .then(() => this.initialiseServiceWorker())
-		},
-		
-		initialiseServiceWorker () {
-		  if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
-		    console.log('Notifications aren\'t supported.')
-		    return
-		  }
-
-		  if (Notification.permission === 'denied') {
-		    console.log('The user has blocked notifications.')
-		    return
-		  }
-
-		  if (!('PushManager' in window)) {
-		    console.log('Push messaging isn\'t supported.')
-		    return
-		  }
-
-		  navigator.serviceWorker.ready.then(registration => {
-		    registration.pushManager.getSubscription()
-		      .then(subscription => {
-
-		        if (!subscription) {
-		          return
-		        }
-
-		        this.updateSubscription(subscription)
-
-		      })
-		      .catch(e => {
-		        console.log('Error during getSubscription()', e)
-		      })
-		  })
-		},
-		
-		/**
-		 * Subscribe for push notifications.
-		 */
-		subscribe () {
-		  navigator.serviceWorker.ready.then(registration => {
-		    const options = { userVisibleOnly: true }
-		    const vapidPublicKey = window.Laravel.vapidPublicKey
-
-		    if (vapidPublicKey) {
-		      options.applicationServerKey = this.urlBase64ToUint8Array(vapidPublicKey)
-		    }
-
-		    registration.pushManager.subscribe(options)
-		      .then(subscription => {
-		        this.updateSubscription(subscription)
-		      })
-		      .catch(e => {
-		        if (Notification.permission === 'denied') {
-		          console.log('Permission for Notifications was denied')
-		        } else {
-		          console.log('Unable to subscribe to push.', e)
-		        }
-		      })
-		  })
-		},
-		
-		/** Send a request to the server to update user's subscription.
-		 *
-		 * @param {PushSubscription} subscription
-		 */
-		updateSubscription (subscription) {
-		  const key = subscription.getKey('p256dh')
-		  const token = subscription.getKey('auth')
-		  const contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0]
-		  
-		  console.log(key)
-
-		  const data = {
-		    endpoint: subscription.endpoint,
-		    publicKey: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
-		    authToken: token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null,
-		    contentEncoding
-		  }
-
-		  axios.post('/subscriptions', data)
-		    .then(() => { })
-		},
-
-		/**
-		 * https://github.com/Minishlink/physbook/blob/02a0d5d7ca0d5d2cc6d308a3a9b81244c63b3f14/app/Resources/public/js/app.js#L177
-		 *
-		 * @param  {String} base64String
-		 * @return {Uint8Array}
-		 */
-		urlBase64ToUint8Array (base64String) {
-		  const padding = '='.repeat((4 - base64String.length % 4) % 4)
-		  const base64 = (base64String + padding)
-		    .replace(/\-/g, '+')
-		    .replace(/_/g, '/')
-
-		  const rawData = window.atob(base64)
-		  const outputArray = new Uint8Array(rawData.length)
-
-		  for (let i = 0; i < rawData.length; ++i) {
-		    outputArray[i] = rawData.charCodeAt(i)
-		  }
-
-		  return outputArray
-		}
+        }
 
     }
 });

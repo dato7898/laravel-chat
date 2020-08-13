@@ -61,9 +61,9 @@ class NotificationController extends Controller
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, User $user)
     {
-        Notification::send($request->friend, new HelloNotification($request->message, Auth::user()));
+        Notification::send(array($user), new HelloNotification(Auth::user()));
 
         return response()->json('Notification sent.', 201);
     }

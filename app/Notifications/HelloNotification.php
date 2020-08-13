@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use App\User;
-use App\Message;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Carbon;
 use Illuminate\Notifications\Notification;
@@ -16,17 +15,14 @@ class HelloNotification extends Notification
     use Queueable;
 
 	public $user;
-	
-	public $message;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct(Message $message, User $user)
+    public function __construct(User $user)
     {
-        $this->message = $message;
         $this->user = $user;
     }
 
@@ -51,7 +47,7 @@ class HelloNotification extends Notification
     {
         return [
             'title' => $this->user->name,
-            'body' => $this->message->message,
+            'body' => 'Look at it',
             'action_url' => 'https://laravel.com',
             'created' => Carbon::now()->toIso8601String()
         ];
@@ -69,8 +65,8 @@ class HelloNotification extends Notification
         return (new WebPushMessage)
             ->title($this->user->name)
             ->icon('/notification-icon.png')
-            ->body($this->message->message)
+            ->body('Look at it')
             ->action('View app', 'view_app')
-            ->data(['id' => $notification->id, 'url' => env('APP_URL').'chat/'.$this->user->name]);
+            ->data(['id' => $notification->id]);
     }
 }

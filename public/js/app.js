@@ -1981,11 +1981,39 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['messages', 'friend', 'user'],
+  data: function data() {
+    return {
+      prevHeight: 0
+    };
+  },
   created: function created() {
     this.$emit('getmessages', this.friend);
     this.$emit('listenchat', this.user, this.friend);
+  },
+  mounted: function mounted() {
+    $('#chat-body').scroll(this.scrollEvent);
+    this.prevHeight = document.getElementById('chat-body').scrollHeight;
+  },
+  updated: function updated() {
+    var curHeight = document.getElementById('chat-body').scrollHeight;
+
+    if (this.prevHeight < curHeight) {
+      $('#chat-body').animate({
+        scrollTop: curHeight - this.prevHeight
+      }, 0);
+      this.prevHeight = curHeight;
+    }
+  },
+  methods: {
+    scrollEvent: function scrollEvent() {
+      if ($('#chat-body').scrollTop() === 0) {
+        this.$emit('getmessages', this.friend);
+      }
+    }
   }
 });
 
@@ -2230,7 +2258,6 @@ __webpack_require__.r(__webpack_exports__);
       var key = subscription.getKey('p256dh');
       var token = subscription.getKey('auth');
       var contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0];
-      console.log(key);
       var data = {
         endpoint: subscription.endpoint,
         publicKey: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
@@ -2478,6 +2505,282 @@ __webpack_require__.r(__webpack_exports__);
      */
     toggleDropdown: function toggleDropdown() {
       jquery__WEBPACK_IMPORTED_MODULE_0___default()(this.$refs.dropdown).toggleClass('open');
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SendNotification.vue?vue&type=script&lang=js&":
+/*!***************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/SendNotification.vue?vue&type=script&lang=js& ***!
+  \***************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['friend'],
+  data: function data() {
+    return {
+      loading: false
+    };
+  },
+  methods: {
+    /**
+     * Send a request to the server for a push notification.
+     */
+    sendNotification: function sendNotification() {
+      var _this = this;
+
+      this.loading = true;
+      console.log('---', this.friend);
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/notifications/' + this.friend.id)["catch"](function (error) {
+        return console.log(error);
+      }).then(function () {
+        _this.loading = false;
+      });
+    }
+  }
+});
+
+/***/ }),
+
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ToggleNotifications.vue?vue&type=script&lang=js&":
+/*!******************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/ToggleNotifications.vue?vue&type=script&lang=js& ***!
+  \******************************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_0__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      loading: false,
+      isPushEnabled: false,
+      pushButtonDisabled: true
+    };
+  },
+  mounted: function mounted() {
+    this.registerServiceWorker();
+  },
+  methods: {
+    /**
+     * Register the service worker.
+     */
+    registerServiceWorker: function registerServiceWorker() {
+      var _this = this;
+
+      if (!('serviceWorker' in navigator)) {
+        console.log('Service workers aren\'t supported in this browser.');
+        return;
+      }
+
+      navigator.serviceWorker.register('/sw.js').then(function () {
+        return _this.initialiseServiceWorker();
+      });
+    },
+    initialiseServiceWorker: function initialiseServiceWorker() {
+      var _this2 = this;
+
+      if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
+        console.log('Notifications aren\'t supported.');
+        return;
+      }
+
+      if (Notification.permission === 'denied') {
+        console.log('The user has blocked notifications.');
+        return;
+      }
+
+      if (!('PushManager' in window)) {
+        console.log('Push messaging isn\'t supported.');
+        return;
+      }
+
+      navigator.serviceWorker.ready.then(function (registration) {
+        registration.pushManager.getSubscription().then(function (subscription) {
+          _this2.pushButtonDisabled = false;
+
+          if (!subscription) {
+            return;
+          }
+
+          _this2.updateSubscription(subscription);
+
+          _this2.isPushEnabled = true;
+        })["catch"](function (e) {
+          console.log('Error during getSubscription()', e);
+        });
+      });
+    },
+
+    /**
+     * Subscribe for push notifications.
+     */
+    subscribe: function subscribe() {
+      var _this3 = this;
+
+      navigator.serviceWorker.ready.then(function (registration) {
+        var options = {
+          userVisibleOnly: true
+        };
+        var vapidPublicKey = window.Laravel.vapidPublicKey;
+
+        if (vapidPublicKey) {
+          options.applicationServerKey = _this3.urlBase64ToUint8Array(vapidPublicKey);
+        }
+
+        registration.pushManager.subscribe(options).then(function (subscription) {
+          _this3.isPushEnabled = true;
+          _this3.pushButtonDisabled = false;
+
+          _this3.updateSubscription(subscription);
+        })["catch"](function (e) {
+          if (Notification.permission === 'denied') {
+            console.log('Permission for Notifications was denied');
+            _this3.pushButtonDisabled = true;
+          } else {
+            console.log('Unable to subscribe to push.', e);
+            _this3.pushButtonDisabled = false;
+          }
+        });
+      });
+    },
+
+    /**
+     * Unsubscribe from push notifications.
+     */
+    unsubscribe: function unsubscribe() {
+      var _this4 = this;
+
+      navigator.serviceWorker.ready.then(function (registration) {
+        registration.pushManager.getSubscription().then(function (subscription) {
+          if (!subscription) {
+            _this4.isPushEnabled = false;
+            _this4.pushButtonDisabled = false;
+            return;
+          }
+
+          subscription.unsubscribe().then(function () {
+            _this4.deleteSubscription(subscription);
+
+            _this4.isPushEnabled = false;
+            _this4.pushButtonDisabled = false;
+          })["catch"](function (e) {
+            console.log('Unsubscription error: ', e);
+            _this4.pushButtonDisabled = false;
+          });
+        })["catch"](function (e) {
+          console.log('Error thrown while unsubscribing.', e);
+        });
+      });
+    },
+
+    /**
+     * Toggle push notifications subscription.
+     */
+    togglePush: function togglePush() {
+      if (this.isPushEnabled) {
+        this.unsubscribe();
+      } else {
+        this.subscribe();
+      }
+    },
+
+    /**
+     * Send a request to the server to update user's subscription.
+     *
+     * @param {PushSubscription} subscription
+     */
+    updateSubscription: function updateSubscription(subscription) {
+      var _this5 = this;
+
+      var key = subscription.getKey('p256dh');
+      var token = subscription.getKey('auth');
+      var contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0];
+      var data = {
+        endpoint: subscription.endpoint,
+        publicKey: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
+        authToken: token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null,
+        contentEncoding: contentEncoding
+      };
+      this.loading = true;
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/subscriptions', data).then(function () {
+        _this5.loading = false;
+      });
+    },
+
+    /**
+     * Send a requst to the server to delete user's subscription.
+     *
+     * @param {PushSubscription} subscription
+     */
+    deleteSubscription: function deleteSubscription(subscription) {
+      var _this6 = this;
+
+      this.loading = true;
+      axios__WEBPACK_IMPORTED_MODULE_0___default.a.post('/subscriptions/delete', {
+        endpoint: subscription.endpoint
+      }).then(function () {
+        _this6.loading = false;
+      });
+    },
+
+    /**
+     * https://github.com/Minishlink/physbook/blob/02a0d5d7ca0d5d2cc6d308a3a9b81244c63b3f14/app/Resources/public/js/app.js#L177
+     *
+     * @param  {String} base64String
+     * @return {Uint8Array}
+     */
+    urlBase64ToUint8Array: function urlBase64ToUint8Array(base64String) {
+      var padding = '='.repeat((4 - base64String.length % 4) % 4);
+      var base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+      var rawData = window.atob(base64);
+      var outputArray = new Uint8Array(rawData.length);
+
+      for (var i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+
+      return outputArray;
     }
   }
 });
@@ -44852,41 +45155,43 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "ul",
-    { staticClass: "chat" },
-    _vm._l(_vm.messages, function(message) {
-      return _c("li", { staticClass: "left clearfix" }, [
-        _c(
-          "div",
-          {
-            staticClass: "chat-body clearfix",
-            class: { "text-right": _vm.user.id === message.user.id }
-          },
-          [
-            _c("div", { staticClass: "header" }, [
-              _c("strong", { staticClass: "primary-font" }, [
+  return _c("div", { staticClass: "panel-body", attrs: { id: "chat-body" } }, [
+    _c(
+      "ul",
+      { staticClass: "chat" },
+      _vm._l(_vm.messages, function(message) {
+        return _c("li", { staticClass: "left clearfix" }, [
+          _c(
+            "div",
+            {
+              staticClass: "chat-body clearfix",
+              class: { "text-right": _vm.user.id === message.user.id }
+            },
+            [
+              _c("div", { staticClass: "header" }, [
+                _c("strong", { staticClass: "primary-font" }, [
+                  _vm._v(
+                    "\n\t                    " +
+                      _vm._s(message.user.name) +
+                      "\n\t                "
+                  )
+                ])
+              ]),
+              _vm._v(" "),
+              _c("p", [
                 _vm._v(
-                  "\n                    " +
-                    _vm._s(message.user.name) +
-                    "\n                "
+                  "\n\t                " +
+                    _vm._s(message.message) +
+                    "\n\t            "
                 )
               ])
-            ]),
-            _vm._v(" "),
-            _c("p", [
-              _vm._v(
-                "\n                " +
-                  _vm._s(message.message) +
-                  "\n            "
-              )
-            ])
-          ]
-        )
-      ])
-    }),
-    0
-  )
+            ]
+          )
+        ])
+      }),
+      0
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -45162,6 +45467,81 @@ var render = function() {
       ])
     ]
   )
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SendNotification.vue?vue&type=template&id=cc469d04&":
+/*!*******************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/SendNotification.vue?vue&type=template&id=cc469d04& ***!
+  \*******************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c(
+      "button",
+      {
+        staticClass: "btn btn-success btn-send",
+        attrs: { disabled: _vm.loading, type: "button" },
+        on: { click: _vm.sendNotification }
+      },
+      [_vm._v("\n    Notify\n  ")]
+    )
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ToggleNotifications.vue?vue&type=template&id=6c1355d9&":
+/*!**********************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/ToggleNotifications.vue?vue&type=template&id=6c1355d9& ***!
+  \**********************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _c(
+      "button",
+      {
+        staticClass: "btn btn-primary",
+        class: {
+          "btn-primary": _vm.isPushEnabled,
+          "btn-danger": !_vm.isPushEnabled
+        },
+        attrs: {
+          disabled: _vm.pushButtonDisabled || _vm.loading,
+          type: "button"
+        },
+        on: { click: _vm.togglePush }
+      },
+      [_c("i", { staticClass: "fa fa-bell notification-icon" })]
+    )
+  ])
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -57535,6 +57915,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue_timeago__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue_timeago__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _components_NotificationsDemo__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./components/NotificationsDemo */ "./resources/js/components/NotificationsDemo.vue");
 /* harmony import */ var _components_NotificationsDropdown__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/NotificationsDropdown */ "./resources/js/components/NotificationsDropdown.vue");
+/* harmony import */ var _components_ToggleNotifications__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/ToggleNotifications */ "./resources/js/components/ToggleNotifications.vue");
+/* harmony import */ var _components_SendNotification__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./components/SendNotification */ "./resources/js/components/SendNotification.vue");
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -57564,6 +57946,8 @@ Vue.component('chat-messages', __webpack_require__(/*! ./components/ChatMessages
 Vue.component('chat-form', __webpack_require__(/*! ./components/ChatForm.vue */ "./resources/js/components/ChatForm.vue")["default"]);
 
 
+
+
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -57574,17 +57958,18 @@ var app = new Vue({
   el: '#app',
   components: {
     NotificationsDemo: _components_NotificationsDemo__WEBPACK_IMPORTED_MODULE_1__["default"],
-    NotificationsDropdown: _components_NotificationsDropdown__WEBPACK_IMPORTED_MODULE_2__["default"]
+    NotificationsDropdown: _components_NotificationsDropdown__WEBPACK_IMPORTED_MODULE_2__["default"],
+    ToggleNotifications: _components_ToggleNotifications__WEBPACK_IMPORTED_MODULE_3__["default"],
+    SendNotification: _components_SendNotification__WEBPACK_IMPORTED_MODULE_4__["default"]
   },
   data: {
     messages: [],
     typing: false,
     typingClock: null,
     usersonline: [],
-    clearTimerId: null
-  },
-  mounted: function mounted() {
-    this.registerServiceWorker();
+    clearTimerId: null,
+    page: 1,
+    last_page: 0
   },
   created: function created() {
     var _this = this;
@@ -57596,17 +57981,24 @@ var app = new Vue({
     }).leaving(function (user) {
       _this.usersonline.splice(_this.usersonline.indexOf(user), 1);
     });
-    this.subscribe();
   },
   methods: {
     fetchMessages: function fetchMessages(friend) {
       var _this2 = this;
 
-      axios.get('/messages/' + friend.id).then(function (response) {
-        _this2.messages = response.data;
+      if (this.last_page === 0 || this.last_page >= this.page) {
+        axios.get('/messages/' + friend.id + '?page=' + this.page).then(function (response) {
+          _this2.messages = response.data.data.reverse().concat(_this2.messages);
 
-        _this2.scrollToEnd();
-      });
+          if (_this2.page === 1) {
+            _this2.last_page = response.data.last_page;
+
+            _this2.scrollToEnd();
+          }
+
+          _this2.page++;
+        });
+      }
     },
     listenChat: function listenChat(user, friend) {
       var _this3 = this;
@@ -57636,121 +58028,10 @@ var app = new Vue({
     scrollToEnd: function scrollToEnd() {
       $('#chat-body').animate({
         scrollTop: 999999
-      }, 1000);
+      }, 100);
     },
     onTyping: function onTyping(user, friend) {
       Echo["private"]('chat.' + friend.id + '.' + user.id).whisper('typing', {});
-    },
-
-    /**
-    * Register the service worker.
-    */
-    registerServiceWorker: function registerServiceWorker() {
-      var _this4 = this;
-
-      if (!('serviceWorker' in navigator)) {
-        console.log('Service workers aren\'t supported in this browser.');
-        return;
-      }
-
-      navigator.serviceWorker.register('/sw.js').then(function () {
-        return _this4.initialiseServiceWorker();
-      });
-    },
-    initialiseServiceWorker: function initialiseServiceWorker() {
-      var _this5 = this;
-
-      if (!('showNotification' in ServiceWorkerRegistration.prototype)) {
-        console.log('Notifications aren\'t supported.');
-        return;
-      }
-
-      if (Notification.permission === 'denied') {
-        console.log('The user has blocked notifications.');
-        return;
-      }
-
-      if (!('PushManager' in window)) {
-        console.log('Push messaging isn\'t supported.');
-        return;
-      }
-
-      navigator.serviceWorker.ready.then(function (registration) {
-        registration.pushManager.getSubscription().then(function (subscription) {
-          if (!subscription) {
-            return;
-          }
-
-          _this5.updateSubscription(subscription);
-        })["catch"](function (e) {
-          console.log('Error during getSubscription()', e);
-        });
-      });
-    },
-
-    /**
-     * Subscribe for push notifications.
-     */
-    subscribe: function subscribe() {
-      var _this6 = this;
-
-      navigator.serviceWorker.ready.then(function (registration) {
-        var options = {
-          userVisibleOnly: true
-        };
-        var vapidPublicKey = window.Laravel.vapidPublicKey;
-
-        if (vapidPublicKey) {
-          options.applicationServerKey = _this6.urlBase64ToUint8Array(vapidPublicKey);
-        }
-
-        registration.pushManager.subscribe(options).then(function (subscription) {
-          _this6.updateSubscription(subscription);
-        })["catch"](function (e) {
-          if (Notification.permission === 'denied') {
-            console.log('Permission for Notifications was denied');
-          } else {
-            console.log('Unable to subscribe to push.', e);
-          }
-        });
-      });
-    },
-
-    /** Send a request to the server to update user's subscription.
-     *
-     * @param {PushSubscription} subscription
-     */
-    updateSubscription: function updateSubscription(subscription) {
-      var key = subscription.getKey('p256dh');
-      var token = subscription.getKey('auth');
-      var contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0];
-      console.log(key);
-      var data = {
-        endpoint: subscription.endpoint,
-        publicKey: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
-        authToken: token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null,
-        contentEncoding: contentEncoding
-      };
-      axios.post('/subscriptions', data).then(function () {});
-    },
-
-    /**
-     * https://github.com/Minishlink/physbook/blob/02a0d5d7ca0d5d2cc6d308a3a9b81244c63b3f14/app/Resources/public/js/app.js#L177
-     *
-     * @param  {String} base64String
-     * @return {Uint8Array}
-     */
-    urlBase64ToUint8Array: function urlBase64ToUint8Array(base64String) {
-      var padding = '='.repeat((4 - base64String.length % 4) % 4);
-      var base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-      var rawData = window.atob(base64);
-      var outputArray = new Uint8Array(rawData.length);
-
-      for (var i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-      }
-
-      return outputArray;
     }
   }
 });
@@ -58164,6 +58445,144 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationsDropdown_vue_vue_type_template_id_37e15f3e___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_NotificationsDropdown_vue_vue_type_template_id_37e15f3e___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/SendNotification.vue":
+/*!******************************************************!*\
+  !*** ./resources/js/components/SendNotification.vue ***!
+  \******************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _SendNotification_vue_vue_type_template_id_cc469d04___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SendNotification.vue?vue&type=template&id=cc469d04& */ "./resources/js/components/SendNotification.vue?vue&type=template&id=cc469d04&");
+/* harmony import */ var _SendNotification_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./SendNotification.vue?vue&type=script&lang=js& */ "./resources/js/components/SendNotification.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _SendNotification_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _SendNotification_vue_vue_type_template_id_cc469d04___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _SendNotification_vue_vue_type_template_id_cc469d04___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/SendNotification.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/SendNotification.vue?vue&type=script&lang=js&":
+/*!*******************************************************************************!*\
+  !*** ./resources/js/components/SendNotification.vue?vue&type=script&lang=js& ***!
+  \*******************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_SendNotification_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./SendNotification.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SendNotification.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_SendNotification_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/SendNotification.vue?vue&type=template&id=cc469d04&":
+/*!*************************************************************************************!*\
+  !*** ./resources/js/components/SendNotification.vue?vue&type=template&id=cc469d04& ***!
+  \*************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SendNotification_vue_vue_type_template_id_cc469d04___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./SendNotification.vue?vue&type=template&id=cc469d04& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/SendNotification.vue?vue&type=template&id=cc469d04&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SendNotification_vue_vue_type_template_id_cc469d04___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_SendNotification_vue_vue_type_template_id_cc469d04___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
+
+/***/ }),
+
+/***/ "./resources/js/components/ToggleNotifications.vue":
+/*!*********************************************************!*\
+  !*** ./resources/js/components/ToggleNotifications.vue ***!
+  \*********************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _ToggleNotifications_vue_vue_type_template_id_6c1355d9___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ToggleNotifications.vue?vue&type=template&id=6c1355d9& */ "./resources/js/components/ToggleNotifications.vue?vue&type=template&id=6c1355d9&");
+/* harmony import */ var _ToggleNotifications_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ToggleNotifications.vue?vue&type=script&lang=js& */ "./resources/js/components/ToggleNotifications.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _ToggleNotifications_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _ToggleNotifications_vue_vue_type_template_id_6c1355d9___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _ToggleNotifications_vue_vue_type_template_id_6c1355d9___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/ToggleNotifications.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/ToggleNotifications.vue?vue&type=script&lang=js&":
+/*!**********************************************************************************!*\
+  !*** ./resources/js/components/ToggleNotifications.vue?vue&type=script&lang=js& ***!
+  \**********************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ToggleNotifications_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./ToggleNotifications.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ToggleNotifications.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ToggleNotifications_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/ToggleNotifications.vue?vue&type=template&id=6c1355d9&":
+/*!****************************************************************************************!*\
+  !*** ./resources/js/components/ToggleNotifications.vue?vue&type=template&id=6c1355d9& ***!
+  \****************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ToggleNotifications_vue_vue_type_template_id_6c1355d9___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./ToggleNotifications.vue?vue&type=template&id=6c1355d9& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/ToggleNotifications.vue?vue&type=template&id=6c1355d9&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ToggleNotifications_vue_vue_type_template_id_6c1355d9___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_ToggleNotifications_vue_vue_type_template_id_6c1355d9___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
 
 

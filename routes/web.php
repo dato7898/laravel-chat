@@ -115,7 +115,7 @@ Route::post('messages/{user}', 'ChatsController@sendMessage');
 Route::get('/notification', 'NotificationController@notification');
 
 // Notifications
-Route::post('notifications', 'NotificationController@store');
+Route::post('notifications/{user}', 'NotificationController@store');
 Route::get('notifications', 'NotificationController@index');
 Route::patch('notifications/{id}/read', 'NotificationController@markAsRead');
 Route::post('notifications/mark-all-read', 'NotificationController@markAllRead');

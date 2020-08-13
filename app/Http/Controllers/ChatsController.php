@@ -50,7 +50,8 @@ class ChatsController extends Controller
 	  	->orWhere(function($query) use($user) {
 	  		$query->where(['user_id' => $user->id, 'receiver_id' => auth()->id()]);
 	  	})
-	  	->get();
+	  	->latest()
+	  	->paginate(20);
 	  	
 	  	return $privateCommunication;
 	}
@@ -70,12 +71,8 @@ class ChatsController extends Controller
 
 	  $message = $cur_user->messages()->create($input);
 		
-	  broadcast(new MessageSent($cur_user, $message->load('user')))->toOthers();
+	  broadcast(new MessageSent($cur_user, $message->load('user')))->toOthers();	  
 
-	  Notification::send(array($user), new HelloNotification($message, $cur_user));	  
-	  
-	  $c = array($user);
-
-	  return response(['status' => 'Message Sent!', 'message' => $message, 'input' => $input, 'user' => $c]);
+	  return response(['status' => 'Message Sent!', 'message' => $message]);
 	}
 }

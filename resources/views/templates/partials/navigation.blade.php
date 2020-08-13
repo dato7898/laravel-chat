@@ -18,6 +18,9 @@
         <div class="collapse navbar-collapse" id="navbar-collapse">
             @if (Auth::check())
                 <ul class="nav navbar-nav">
+                	<li><a href="#">
+                	  <toggle-notifications></toggle-notifications>
+					</a></li>
                     <li><a href="{{ route('home') }}">Timeline</a></li>
                     <li><a href="{{ route('friend.index') }}">Friends</a></li>
                 </ul>
