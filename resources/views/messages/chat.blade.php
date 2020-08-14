@@ -127,12 +127,11 @@
                <div class="row{{ $isMobile ? ' full-height no-margin' : '' }}">
                   <div class="col-md-8 col-md-offset-2{{ $isMobile ? ' full-height no-padding' : '' }}">
                      <div class="panel panel-default{{ $isMobile ? ' full-height' : '' }}">
-                        <div class="panel-heading">
+                        <div class="panel-heading{{ $isMobile ? ' mobile-panel-heading' : '' }}">
                            <div class="green-circle" v-if="(usersonline.find(useronline => useronline.id === {{ $friend->id }}))"></div>
                            <div class="red-circle" v-else></div>
-                           <span class="text-size-20" v-if="typing">{{ $friend->name }} is typing...</span>
-                           <span class="text-size-20" v-else>Chat with {{ $friend->name }}</span>
-                           <span>{{ $isMobile }}</span>
+                           <span class="{{ $isMobile ? 'text-size-14' : 'text-size-20' }}" v-if="typing">{{ $friend->name }} is typing...</span>
+                           <span class="{{ $isMobile ? 'text-size-14' : 'text-size-20' }}" v-else>Chat with {{ $friend->name }}</span>
                            <div class="pull-right">
                               <send-notification
                                  :friend="{{ $friend }}"

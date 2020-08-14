@@ -5,6 +5,10 @@ textarea {
  .text-size-20 {
 	font-size: 20px;
 }
+ 
+ .text-size-14 {
+	font-size: 14px;
+}
 
 .green-circle {
 	height: 15px;
@@ -48,6 +52,10 @@ textarea {
 
 .mobile-panel-body {
 	min-height: calc(100vh - 150px);
+}
+
+.mobile-panel-heading {
+	height: 50px;
 }
 
 .mobile-navbar {
