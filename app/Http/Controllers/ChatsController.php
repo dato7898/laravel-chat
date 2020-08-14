@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Events\MessageSent;
 use Notification;
 use App\Notifications\HelloNotification;
+use Jenssegers\Agent\Agent;
 
 class ChatsController extends Controller
 {
@@ -34,8 +35,11 @@ class ChatsController extends Controller
           abort(403);
       }
       
+      $agent = new Agent();
+      
 	  return view('messages.chat')
-	  	->with('friend', $friend);
+	  	->with('friend', $friend)
+	  	->with('isMobile', $agent->isMobile());
 	}
 
 	/**

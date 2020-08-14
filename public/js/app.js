@@ -1984,7 +1984,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['messages', 'friend', 'user'],
+  props: ['messages', 'friend', 'user', 'mobile'],
   data: function data() {
     return {
       prevHeight: 0
@@ -44019,43 +44019,51 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "panel-body", attrs: { id: "chat-body" } }, [
-    _c(
-      "ul",
-      { staticClass: "chat" },
-      _vm._l(_vm.messages, function(message) {
-        return _c("li", { staticClass: "left clearfix" }, [
-          _c(
-            "div",
-            {
-              staticClass: "chat-body clearfix",
-              class: { "text-right": _vm.user.id === message.user.id }
-            },
-            [
-              _c("div", { staticClass: "header" }, [
-                _c("strong", { staticClass: "primary-font" }, [
+  return _c(
+    "div",
+    {
+      staticClass: "panel-body",
+      class: { "mobile-panel-body": _vm.mobile },
+      attrs: { id: "chat-body" }
+    },
+    [
+      _c(
+        "ul",
+        { staticClass: "chat" },
+        _vm._l(_vm.messages, function(message) {
+          return _c("li", { staticClass: "left clearfix" }, [
+            _c(
+              "div",
+              {
+                staticClass: "chat-body clearfix",
+                class: { "text-right": _vm.user.id === message.user.id }
+              },
+              [
+                _c("div", { staticClass: "header" }, [
+                  _c("strong", { staticClass: "primary-font" }, [
+                    _vm._v(
+                      "\n\t                    " +
+                        _vm._s(message.user.name) +
+                        "\n\t                "
+                    )
+                  ])
+                ]),
+                _vm._v(" "),
+                _c("p", [
                   _vm._v(
-                    "\n\t                    " +
-                      _vm._s(message.user.name) +
-                      "\n\t                "
+                    "\n\t                " +
+                      _vm._s(message.message) +
+                      "\n\t            "
                   )
                 ])
-              ]),
-              _vm._v(" "),
-              _c("p", [
-                _vm._v(
-                  "\n\t                " +
-                    _vm._s(message.message) +
-                    "\n\t            "
-                )
-              ])
-            ]
-          )
-        ])
-      }),
-      0
-    )
-  ])
+              ]
+            )
+          ])
+        }),
+        0
+      )
+    ]
+  )
 }
 var staticRenderFns = []
 render._withStripped = true
@@ -56666,12 +56674,6 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   key: "d52f87da799f4afe6222",
   cluster: "eu",
   encrypted: true
-});
-axios.interceptors.request.use(function (config) {
-  config.headers['X-Socket-ID'] = window.Echo.socketId();
-  return config;
-}, function (error) {
-  return Promise.reject(error);
 });
 
 /***/ }),

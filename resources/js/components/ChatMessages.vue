@@ -1,5 +1,5 @@
 <template>
-	<div class="panel-body" id="chat-body">
+	<div class="panel-body" v-bind:class="{'mobile-panel-body' : mobile}" id="chat-body">
 		<ul class="chat">
 		    <li class="left clearfix" v-for="message in messages">
 		        <div 
@@ -22,7 +22,7 @@
 
 <script>
   export default {
-    props: ['messages', 'friend', 'user'],
+    props: ['messages', 'friend', 'user', 'mobile'],
     
     data() {
         return {

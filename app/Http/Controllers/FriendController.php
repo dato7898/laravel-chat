@@ -88,7 +88,8 @@ class FriendController extends Controller {
 
         Auth::user()->deleteFriend($user);
 
-        return redirect()->back()->with('info', 'Friend deleted');
+        return redirect()->back()
+        	->with('info', 'Friend deleted');
     }
 }
 
