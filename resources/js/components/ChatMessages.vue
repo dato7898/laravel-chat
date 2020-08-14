@@ -1,5 +1,5 @@
 <template>
-	<div class="panel-body" v-bind:class="{'mobile-panel-body' : mobile}" id="chat-body">
+	<div class="panel-body" v-bind:class="{'mobile-panel-body' : mobile == 1}" id="chat-body">
 		<ul class="chat">
 		    <li class="left clearfix" v-for="message in messages">
 		        <div 

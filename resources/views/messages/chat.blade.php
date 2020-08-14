@@ -132,6 +132,7 @@
                            <div class="red-circle" v-else></div>
                            <span class="text-size-20" v-if="typing">{{ $friend->name }} is typing...</span>
                            <span class="text-size-20" v-else>Chat with {{ $friend->name }}</span>
+                           <span>{{ $isMobile }}</span>
                            <div class="pull-right">
                               <send-notification
                                  :friend="{{ $friend }}"
@@ -144,7 +145,7 @@
                            :messages="messages"
                            :friend="{{ $friend }}"
                            :user="{{ Auth::user() }}"
-                           :mobile="{{ $isMobile ? true : false }}"
+                           :mobile="{{ $isMobile ? '1' : '0' }}"
                            ></chat-messages>
                         <div class="panel-footer">
                            <chat-form

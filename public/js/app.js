@@ -44023,7 +44023,7 @@ var render = function() {
     "div",
     {
       staticClass: "panel-body",
-      class: { "mobile-panel-body": _vm.mobile },
+      class: { "mobile-panel-body": _vm.mobile == 1 },
       attrs: { id: "chat-body" }
     },
     [
