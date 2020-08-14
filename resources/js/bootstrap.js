@@ -39,11 +39,3 @@ window.Echo = new Echo({
     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
     encrypted: true
 });
-
-axios.interceptors.request.use(
-	config => {
-	  config.headers['X-Socket-ID'] = window.Echo.socketId()
-	  return config
-	},
-	error => Promise.reject(error)
-);
