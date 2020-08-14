@@ -56667,6 +56667,12 @@ window.Echo = new laravel_echo__WEBPACK_IMPORTED_MODULE_0__["default"]({
   cluster: "eu",
   encrypted: true
 });
+axios.interceptors.request.use(function (config) {
+  config.headers['X-Socket-ID'] = window.Echo.socketId();
+  return config;
+}, function (error) {
+  return Promise.reject(error);
+});
 
 /***/ }),
 

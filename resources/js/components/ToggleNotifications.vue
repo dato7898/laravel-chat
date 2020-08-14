@@ -175,7 +175,6 @@ export default {
      */
     deleteSubscription (subscription) {
       this.loading = true
-
       axios.post('/subscriptions/delete', { endpoint: subscription.endpoint })
         .then(() => { this.loading = false })
     },
