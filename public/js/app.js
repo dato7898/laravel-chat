@@ -1987,7 +1987,8 @@ __webpack_require__.r(__webpack_exports__);
   props: ['messages', 'friend', 'user', 'mobile'],
   data: function data() {
     return {
-      prevHeight: 0
+      prevHeight: 0,
+      isMessagesUpdate: false
     };
   },
   created: function created() {
@@ -1996,22 +1997,28 @@ __webpack_require__.r(__webpack_exports__);
   },
   mounted: function mounted() {
     $('#chat-body').scroll(this.scrollEvent);
-    this.prevHeight = document.getElementById('chat-body').scrollHeight;
   },
   updated: function updated() {
     var curHeight = document.getElementById('chat-body').scrollHeight;
 
-    if (this.prevHeight < curHeight) {
+    if (this.prevHeight === 0) {
+      this.prevHeight = document.getElementById('chat-body').scrollHeight;
+      return;
+    }
+
+    if (this.prevHeight < curHeight && this.isMessagesUpdate) {
       console.log('--------------------------');
       $('#chat-body').animate({
         scrollTop: curHeight - this.prevHeight
       }, 0);
       this.prevHeight = curHeight;
+      this.isMessagesUpdate = false;
     }
   },
   methods: {
     scrollEvent: function scrollEvent() {
       if ($('#chat-body').scrollTop() === 0) {
+        this.isMessagesUpdate = true;
         this.$emit('getmessages', this.friend);
       }
     }

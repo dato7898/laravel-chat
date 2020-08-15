@@ -26,7 +26,8 @@
     
     data() {
         return {
-        	prevHeight: 0
+        	prevHeight: 0,
+        	isMessagesUpdate: false
         }
     },
     
@@ -37,21 +38,26 @@
     
     mounted() {
     	$('#chat-body').scroll(this.scrollEvent);
-    	this.prevHeight = document.getElementById('chat-body').scrollHeight;
     },
     
     updated() {
     	var curHeight = document.getElementById('chat-body').scrollHeight;
-    	if (this.prevHeight < curHeight) {
+    	if (this.prevHeight === 0) {
+    		this.prevHeight = document.getElementById('chat-body').scrollHeight;
+    		return;
+    	}
+    	if (this.prevHeight < curHeight && this.isMessagesUpdate) {
     		console.log('--------------------------')
     		$('#chat-body').animate({ scrollTop: curHeight - this.prevHeight}, 0);
     		this.prevHeight = curHeight;
+    		this.isMessagesUpdate = false;
     	}
     },
     
     methods: {
     	scrollEvent() {
     		if ( $('#chat-body').scrollTop() === 0 ) {
+    			this.isMessagesUpdate = true;
     			this.$emit('getmessages', this.friend);
     		}
     	}
